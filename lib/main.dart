@@ -2,12 +2,14 @@ import 'package:batch33c/dashboard/dashboard_screen.dart';
 import 'package:batch33c/firestore_example/firestore_example.dart';
 import 'package:batch33c/formscreen/form_screen.dart';
 import 'package:batch33c/navigation/navigation_screen.dart';
+import 'package:batch33c/providers/user_view_model.dart';
 import 'package:batch33c/routes/route_generator.dart';
 import 'package:batch33c/splash/splash_screen.dart';
 import 'package:batch33c/tabbar_example/tab_bar_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:overlay_kit/overlay_kit.dart';
+import 'package:provider/provider.dart';
 
 import 'firebase_options.dart';
 
@@ -25,13 +27,18 @@ class RootScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return OverlayKit(
-      child: MaterialApp(
-        theme: ThemeData(appBarTheme: AppBarTheme(color: Colors.red)),
-        debugShowCheckedModeBanner: false,
-        // home: DashBoardScreen(),
-        initialRoute: FirestoreExample.routeName,
-        onGenerateRoute: RouteGenerator.generateRoute,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_)=> UserViewModel()),
+      ],
+      child: OverlayKit(
+        child: MaterialApp(
+          theme: ThemeData(appBarTheme: AppBarTheme(color: Colors.red)),
+          debugShowCheckedModeBanner: false,
+          // home: DashBoardScreen(),
+          initialRoute: FirestoreExample.routeName,
+          onGenerateRoute: RouteGenerator.generateRoute,
+        ),
       ),
     );
   }

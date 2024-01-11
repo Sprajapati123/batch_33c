@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:batch33c/model/user_model.dart';
+import 'package:batch33c/providers/user_view_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -8,6 +9,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:overlay_kit/overlay_kit.dart';
+import 'package:provider/provider.dart';
 
 class FirestoreExample extends StatefulWidget {
   const FirestoreExample({super.key});
@@ -28,6 +30,18 @@ class _FirestoreExampleState extends State<FirestoreExample> {
   FirebaseStorage storage = FirebaseStorage.instance;
   File? image;
   String? url;
+
+  late UserViewModel userViewModel;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      userViewModel = Provider.of(context, listen: false);
+    });
+    super.initState();
+  }
 
   void pickImage(ImageSource source) async {
     var selected = await picker.pickImage(source: source, imageQuality: 100);
@@ -130,32 +144,36 @@ class _FirestoreExampleState extends State<FirestoreExample> {
                 );
               },
               child: Text("Browse image")),
-          ElevatedButton(
-              onPressed: () async {
-                OverlayLoadingProgress.start();
+          Consumer<UserViewModel>(builder: (context, userviewmodel, child) {
+            return ElevatedButton(
+                onPressed: () async {
+                  OverlayLoadingProgress.start();
 
-                UserModel model = UserModel(
-                    email: emailController.text,
-                    lastname: lnameController.text,
-                    firstname: fnameController.text,
-                    image: url);
-                await firestore
-                    .collection('users')
-                    .doc()
-                    .set(model.toJson())
-                    .then((value) {
-                  clearData();
-                  ScaffoldMessenger.of(context)
-                      .showSnackBar(SnackBar(content: Text("Data Submitted")));
+                  UserModel model = UserModel(
+                      email: emailController.text,
+                      lastname: lnameController.text,
+                      firstname: fnameController.text,
+                      image: url);
 
-                  OverlayLoadingProgress.stop();
-                }).onError((error, stackTrace) {
-                  OverlayLoadingProgress.stop();
-                  ScaffoldMessenger.of(context)
-                      .showSnackBar(SnackBar(content: Text(error.toString())));
-                });
-              },
-              child: Text("Submit"))
+                  userViewModel.save(model);
+                  await firestore
+                      .collection('users')
+                      .doc()
+                      .set(model.toJson())
+                      .then((value) {
+                    clearData();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text("Data Submitted")));
+
+                    OverlayLoadingProgress.stop();
+                  }).onError((error, stackTrace) {
+                    OverlayLoadingProgress.stop();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(error.toString())));
+                  });
+                },
+                child: Text("Submit"));
+          })
         ],
       ),
     );
