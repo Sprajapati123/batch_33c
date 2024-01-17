@@ -144,6 +144,7 @@ class _FirestoreExampleState extends State<FirestoreExample> {
                 );
               },
               child: Text("Browse image")),
+
           Consumer<UserViewModel>(builder: (context, userviewmodel, child) {
             return ElevatedButton(
                 onPressed: () async {

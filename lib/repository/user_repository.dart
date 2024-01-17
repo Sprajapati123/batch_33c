@@ -19,4 +19,17 @@ class UserRepository {
     }
     return null;
   }
+
+  Future<List<QueryDocumentSnapshot<UserModel>>> fetchUsers() async {
+    try {
+      final res = (await instance.get()).docs;
+      return res;
+    } on Exception catch (e) {
+      print(e.toString());
+      // TODO
+    }
+    return [];
+  }
+
+
 }
