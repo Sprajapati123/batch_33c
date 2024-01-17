@@ -26,8 +26,10 @@ class UserViewModel extends ChangeNotifier {
   }
 
   Future<void> getUsers() async {
+    _loading = true;
     final res = await UserRepository().fetchUsers();
     _data = res;
+    _loading = false;
     notifyListeners();
   }
 }

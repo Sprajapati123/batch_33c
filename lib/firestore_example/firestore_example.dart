@@ -39,6 +39,7 @@ class _FirestoreExampleState extends State<FirestoreExample> {
 
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       userViewModel = Provider.of(context, listen: false);
+      userViewModel.getUsers();
     });
     super.initState();
   }
@@ -74,79 +75,94 @@ class _FirestoreExampleState extends State<FirestoreExample> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text("Email"),
-          TextFormField(controller: emailController),
-          Text("Firstname"),
-          TextFormField(controller: fnameController),
-          Text("Lastname"),
-          TextFormField(controller: lnameController),
-          image == null
-              ? SizedBox()
-              : Image.file(
-                  image!,
-                  height: 200,
-                  width: 200,
-                ),
-          ElevatedButton(
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (context) => AlertDialog(
-                    title: Text("Choose image"),
-                    content: Container(
-                      height: 200,
-                      child: Row(
-                        children: [
-                          //camera ko image
-                          Expanded(
-                              child: InkWell(
-                            onTap: () {
-                              pickImage(ImageSource.camera);
-                              Navigator.pop(context);
-                            },
-                            child: Column(
-                              children: [
-                                Image.asset(
-                                  "assets/images/camera.jpg",
-                                  height: 100,
-                                  width: 100,
-                                ),
-                                Text("Camera"),
-                              ],
-                            ),
-                          )),
-                          //gallery ko image
-                          Expanded(
-                              child: InkWell(
-                            onTap: () {
-                              pickImage(ImageSource.gallery);
-                              Navigator.pop(context);
-                            },
-                            child: Column(
-                              children: [
-                                Image.asset(
-                                  "assets/images/gallery.jpg",
-                                  height: 100,
-                                  width: 100,
-                                ),
-                                Text("Gallery"),
-                              ],
-                            ),
-                          ))
-                        ],
+      body: Consumer<UserViewModel>(builder: (context, value, child) {
+        return ListView(
+          // mainAxisAlignment: MainAxisAlignment.start,
+          // crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text("Email"),
+            TextFormField(controller: emailController),
+            Text("Firstname"),
+            TextFormField(controller: fnameController),
+            Text("Lastname"),
+            TextFormField(controller: lnameController),
+            image == null
+                ? SizedBox()
+                : Image.file(
+                    image!,
+                    height: 200,
+                    width: 200,
+                  ),
+            ElevatedButton(
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: Text("Choose image"),
+                      content: Container(
+                        height: 200,
+                        child: Row(
+                          children: [
+                            //camera ko image
+                            Expanded(
+                                child: InkWell(
+                              onTap: () {
+                                pickImage(ImageSource.camera);
+                                Navigator.pop(context);
+                              },
+                              child: Column(
+                                children: [
+                                  Image.asset(
+                                    "assets/images/camera.jpg",
+                                    height: 100,
+                                    width: 100,
+                                  ),
+                                  Text("Camera"),
+                                ],
+                              ),
+                            )),
+                            //gallery ko image
+                            Expanded(
+                                child: InkWell(
+                              onTap: () {
+                                pickImage(ImageSource.gallery);
+                                Navigator.pop(context);
+                              },
+                              child: Column(
+                                children: [
+                                  Image.asset(
+                                    "assets/images/gallery.jpg",
+                                    height: 100,
+                                    width: 100,
+                                  ),
+                                  Text("Gallery"),
+                                ],
+                              ),
+                            ))
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                );
-              },
-              child: Text("Browse image")),
-
-          Consumer<UserViewModel>(builder: (context, userviewmodel, child) {
-            return ElevatedButton(
+                  );
+                },
+                child: Text("Browse image")),
+            value.loading == true
+                ? const CircularProgressIndicator()
+                : value.data.isEmpty
+                    ? const Text("No data")
+                    : Column(
+                        children: value.data.map((e) {
+                          var user = e.data();
+                          return ListTile(
+                            title: Text(user.email ?? "n/a"),
+                            subtitle: Text(e.data().firstname ?? "n/a"),
+                            leading: user.image == null
+                                ? Image.asset("assets/images/download.jpeg")
+                                : Image.network(user.image.toString()),
+                          );
+                        }).toList(),
+                      ),
+            ElevatedButton(
                 onPressed: () async {
                   OverlayLoadingProgress.start();
 
@@ -156,7 +172,7 @@ class _FirestoreExampleState extends State<FirestoreExample> {
                       firstname: fnameController.text,
                       image: url);
 
-                  userViewModel.save(model);
+                  value.save(model);
                   await firestore
                       .collection('users')
                       .doc()
@@ -173,10 +189,10 @@ class _FirestoreExampleState extends State<FirestoreExample> {
                         SnackBar(content: Text(error.toString())));
                   });
                 },
-                child: Text("Submit"));
-          })
-        ],
-      ),
+                child: Text("Submit")),
+          ],
+        );
+      }),
     );
   }
 
