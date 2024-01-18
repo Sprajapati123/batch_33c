@@ -23,6 +23,7 @@ class RouteGenerator {
 
       case NavigationScreen.routeName:
         return MaterialPageRoute(builder: (_) => const NavigationScreen());
+
       case FormScreen.routeName:
         return MaterialPageRoute(builder: (_) => const FormScreen());
    case FirestoreExample.routeName:

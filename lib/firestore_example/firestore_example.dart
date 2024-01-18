@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:batch33c/model/user_model.dart';
 import 'package:batch33c/providers/user_view_model.dart';
+import 'package:batch33c/services/notification_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -80,6 +81,17 @@ class _FirestoreExampleState extends State<FirestoreExample> {
           // mainAxisAlignment: MainAxisAlignment.start,
           // crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+
+            ElevatedButton(onPressed: (){
+              NotificationService.display(
+                  title: "Holiday notice",
+                  body: "This is to inform that there is holiday tomorrow",
+                image: "assets/images/tree.jpeg",
+                logo: "assets/images/camera.jpg"
+
+              );
+            }, child: Text("Send notification")),
+
             Text("Email"),
             TextFormField(controller: emailController),
             Text("Firstname"),

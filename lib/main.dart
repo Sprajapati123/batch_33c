@@ -4,6 +4,7 @@ import 'package:batch33c/formscreen/form_screen.dart';
 import 'package:batch33c/navigation/navigation_screen.dart';
 import 'package:batch33c/providers/user_view_model.dart';
 import 'package:batch33c/routes/route_generator.dart';
+import 'package:batch33c/services/notification_service.dart';
 import 'package:batch33c/splash/splash_screen.dart';
 import 'package:batch33c/tabbar_example/tab_bar_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -15,6 +16,7 @@ import 'firebase_options.dart';
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
+  NotificationService.initialize();
    await Firebase.initializeApp(
      options: DefaultFirebaseOptions.currentPlatform,
    );
